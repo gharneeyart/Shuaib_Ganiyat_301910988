@@ -5,7 +5,7 @@
 **Matric No.:** 2026/A/MIT/0385
 **Miva Email Address:** g.shuaib0988@miva.edu.ng
 **Case study:** Adetwin Stores POS and Inventory Management System
-**GitHub repository:** [https://github.com/gharneeyart/advanced-database-portfolio](https://github.com/gharneeyart/Shuaib_Ganiyat_301910988)
+**GitHub repository:** [https://github.com/gharneeyart/Shuaib_Ganiyat_301910988](https://github.com/gharneeyart/Shuaib_Ganiyat_301910988)
 **Databases:** PostgreSQL 18 on Neon; MongoDB 8.0 on Atlas
 
 ## 1. Selected Case Study
