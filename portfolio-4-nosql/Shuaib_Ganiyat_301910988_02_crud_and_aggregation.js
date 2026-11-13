@@ -1,8 +1,3 @@
-// Portfolio 4: CRUD and aggregation.
-// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_02_crud_and_aggregation.js
-// (or paste one section at a time into an interactive mongosh session).
-// Run Shuaib_Ganiyat_301910988_01_setup_and_seed.js first; re-run it to reset the data after this script.
-
 db = db.getSiblingDB('adetwin_stores_nosql');
 const show = (title, value) => { print('\n=== ' + title); printjson(value); };
 

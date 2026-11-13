@@ -71,7 +71,7 @@ The hardest parts were practical. Connection strings were silently empty, so `ps
 ## 6. AI Use Declaration
 
 - **Tool:** Claude Code (Anthropic), model Claude Sonnet 5.5.
-- **Used for:** revising the READMEs and this document after my files were renamed, explaining connection and tooling errors, scanning the repository for mismatches between documents, scripts and screenshots, and recreating the Portfolio 1 constraint test file from my written test record.
+- **Used for:** Generating the bulk data file, revising the READMEs and this document after my files were renamed, explaining connection and tooling errors, scanning the repository for mismatches between documents, scripts and screenshots, and recreating the Portfolio 1 constraint test file from my written test record.
 - **How I checked it:** I ran every database script myself on Neon and Atlas and saved the real output; the tool did not run my scripts. I compared the changed documents with that output and with my screenshots, and I can explain each script. 
 
 ## 7. References

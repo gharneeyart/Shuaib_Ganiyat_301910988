@@ -1,9 +1,3 @@
-// Portfolio 4: MongoDB setup and seed data.
-// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_01_setup_and_seed.js
-// The data mirrors the PostgreSQL seed (same 6 products, same 2 sales, same
-// customers (as snapshots inside each sale), same current stock) so both portfolios describe the same business.
-// WARNING: drops and recreates the three collections in database adetwin_stores_nosql.
-
 db = db.getSiblingDB('adetwin_stores_nosql');
 
 db.products.drop();

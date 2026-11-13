@@ -1,8 +1,3 @@
-// Portfolio 4: index evidence with explain(), the MongoDB counterpart of Portfolio 2.
-// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_03_indexing_and_explain.js
-// Run Shuaib_Ganiyat_301910988_01_setup_and_seed.js first. The script adds 20,000 SYNTHETIC inventory
-// events so the difference is measurable, then deletes them again at the end.
-
 db = db.getSiblingDB('adetwin_stores_nosql');
 const codes = ['GR-001', 'GR-002', 'CE-001', 'CE-002', 'BV-001', 'HH-001'];
 
