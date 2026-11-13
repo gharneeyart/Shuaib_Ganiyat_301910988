@@ -32,7 +32,7 @@ psql "$DATABASE_URL" -f sql/Shuaib_Ganiyat_301910988_03_failed_sale_rollback.sql
 
 For every "session A/B" exercise (04 to 09), open **two terminals**, run `source ../.env` in both, and use the **direct** Neon connection string (not the `-pooler` host; pooled connections can break multi-statement transactions). Each script has comments saying which steps to run in which session and when to pause. For 08 and 09, run `Shuaib_Ganiyat_301910988_07_concurrency_setup.sql` first. To leave `psql`, type `\q`.
 
-The tests change stock. To return to the clean data set, reset the database and re-run the Portfolio 1 schema and seed (see `../portfolio-1-database-design/README.md`). The concurrency demos skip ledger rows to stay short; `07_concurrency_setup.sql` re-aligns the ledger for product 6.
+The tests change stock. To return to the clean data set, reset the database and re-run the Portfolio 1 schema and seed (see [the Portfolio 1 README](../portfolio-1-database-design/Shuaib_Ganiyat_301910988_README.md)). The concurrency demos skip ledger rows to stay short; `07_concurrency_setup.sql` re-aligns the ledger for product 6.
 
 ## Concepts (short)
 - **ACID**: *Atomic* (all or nothing), *Consistent* (constraints always hold), *Isolated* (concurrent transactions don't see each other's half-finished work), *Durable* (committed data survives a crash).
