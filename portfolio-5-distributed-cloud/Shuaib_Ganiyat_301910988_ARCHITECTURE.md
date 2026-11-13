@@ -7,8 +7,8 @@
 | Region | `AWS US East 2 (Ohio)` | `AWS / Paris (eu-west-3)` |
 | Version | `18.6` (from `SELECT version()`) | `8.0.37` |
 | Nodes | one primary compute (+ storage layer managed by Neon) | `3` nodes (replica set: 1 primary, 2 secondaries) (from `db.hello().hosts`) |
-| Role | **System of record**: sales, payments, stock, customers | **Derived read model**: product documents, sale snapshots, stock events |
-| Access control | TLS required (`sslmode=require`; `\conninfo` shows TLSv1.3 from my machine to Neon), single role `neondb_owner` (owns `neondb`); password kept in `.env`, not in Git | Atlas IP access list: two specific addresses (`/32`) plus `0.0.0.0/0` (open to all; temporary, to be removed); database user `shuaibganiyat20_db_user` with role `atlasAdmin` (full rights, not least privilege; a real deployment would use `readWrite` on one database) |
+| Role | **System of record**: sales, payments, stock, customers | **Separate document store**, loaded with the same sample data (product documents, sale snapshots, stock events). It is not fed from PostgreSQL yet: making it a read model is the proposal in section 4 |
+| Access control | TLS required (`sslmode=require`; `\conninfo` shows TLSv1.3 from my machine to Neon); connection string and password kept in `.env`, not in Git | Authenticated database user over TLS; connection string kept in `.env`, not in Git. A real deployment should give the application a least-privilege user (`readWrite` on one database) and restrict who may connect |
 | Backup / recovery | "Restore from history" with a 6-hour history window (Backup & Restore page); compute size 0.25 to 2 CU, autosuspends when idle | backups inactive on the Free tier ("Enable daily backups" is not available); the 3-node replica set gives copies but is not a backup |
 
 ## 2. Architecture
@@ -40,11 +40,11 @@ The primary takes all writes. A replica is a read-only copy that can lag behind.
 | Daily revenue and top-product reports (Portfolio 2 queries) | No | replica | Long aggregations; yesterday's figures do not change. |
 | Stock movement audit history | No | replica | Append-only history. |
 
-**Implemented:** Atlas replication (verify with `02_mongo_replica_check.js`). **Proposed:** a Neon read replica for the three "No" rows.
+**Implemented:** Atlas replication (verify with `Shuaib_Ganiyat_301910988_mongo_replica_check.js`). **Proposed:** a Neon read replica for the three "No" rows.
 
 ## 4. Consistency
 - **PostgreSQL:** full ACID inside one database (Portfolio 3). Isolation level READ COMMITTED by default.
-- **MongoDB:** atomic per document; `w:majority` makes a write survive a primary failure; reads from a secondary are eventually consistent (`02_mongo_replica_check.js` shows the cost of `w:majority`).
+- **MongoDB:** atomic per document; `w:majority` makes a write survive a primary failure; reads from a secondary are eventually consistent (`Shuaib_Ganiyat_301910988_mongo_replica_check.js` compares `w:1` with `w:majority`; on this free tier the difference was within network noise, see the README).
 - **Across the two databases there is no shared transaction.** Failure case: a sale commits in PostgreSQL, then the write of its snapshot to MongoDB fails. PostgreSQL is the truth; MongoDB must be repairable from it. **Proposed fix, outbox pattern:** in the same PostgreSQL transaction as the sale, insert a row into an `outbox` table. A background job reads unsent rows, writes the document to MongoDB (idempotently, keyed by `saleCode`), then marks the row sent. If MongoDB is down the job retries later and nothing is lost.
 - **CAP/PACELC by operation:** payments and stock deduction choose **consistency** (refuse or wait rather than act on stale data). Catalogue browsing chooses **availability and speed** (a stale price for a few seconds is acceptable).
 
@@ -53,7 +53,7 @@ These describe expected provider behaviour and the application's duty. Only the 
 
 | Failure | Expected behaviour | What the application must do |
 |---|---|---|
-| Neon compute idle | Suspended after inactivity; first query is slower (**measured** in `01_neon_checks.sql`) | Tolerate a slow first request; retry on connection errors |
+| Neon compute idle | Suspended after inactivity; first query is slower (**measured** in `Shuaib_Ganiyat_301910988_neon_checks.sql`) | Tolerate a slow first request; retry on connection errors |
 | Atlas primary fails | The replica set elects a new primary (typically seconds); drivers reconnect | Retry writes; make them idempotent (e.g. unique `saleCode`) so a retry cannot create a second sale |
 | Network drop mid-transaction | PostgreSQL rolls the transaction back (Portfolio 3) | Retry the whole sale; use a unique payment reference so a retry cannot double-charge |
 | Provider outage in the region | Both services unavailable | Out of scope; mention a multi-region standby as the next step |
@@ -86,8 +86,8 @@ Trade-off: child tables such as `sale_items` would also need `sale_date` to refe
 ## 7. Implemented vs proposed
 | Item | Status |
 |---|---|
-| Neon cloud PostgreSQL deployment, TLS, primary check, cold-start timing | **Implemented** (`01_neon_checks.sql`) |
-| MongoDB Atlas replica set, write concern and read preference comparison | **Implemented** (`02_mongo_replica_check.js`) |
+| Neon cloud PostgreSQL deployment, TLS, primary check, cold-start timing | **Implemented** (`Shuaib_Ganiyat_301910988_neon_checks.sql`) |
+| MongoDB Atlas replica set, write concern and read preference comparison | **Implemented** (`Shuaib_Ganiyat_301910988_mongo_replica_check.js`) |
 | Neon read replica | Proposed |
 | Outbox / change feed between the two databases | Proposed |
 | Sharding and PostgreSQL partitioning | Proposed (design only) |
@@ -97,7 +97,7 @@ Trade-off: child tables such as `sale_items` would also need `sale_date` to refe
 What was **not** done in this project, and why it does not change the results above:
 
 - **No PostgreSQL replica was set up.** Neon runs one primary database here. Section 3 explains how a read replica would be used and which reads must stay on the primary, but that part is a design, not something I built.
-- **No failover was tested.** I did not stop the primary to see another node take over. MongoDB Atlas does this automatically with its three nodes, but I only inspected the replica set (`02_mongo_replica_check.js`); I did not trigger a failover.
+- **No failover was tested.** I did not stop the primary to see another node take over. MongoDB Atlas does this automatically with its three nodes, but I only inspected the replica set (`Shuaib_Ganiyat_301910988_mongo_replica_check.js`); I did not trigger a failover.
 - **No sharding.** The shard keys in section 6 are a proposal. A single store with a small data set does not need sharding, and the free MongoDB tier cannot create a sharded cluster.
 - **The two databases do not synchronise.** PostgreSQL and MongoDB are separate deployments loaded with the same sample data. A change in one does not reach the other. Section 4 proposes an outbox pattern to fix this, but it was not built.
 - **No backup restore test.** I recorded what the consoles offer (restore window, backup option) but did not restore anything.

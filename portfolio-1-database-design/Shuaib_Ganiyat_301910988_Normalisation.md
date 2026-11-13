@@ -12,8 +12,8 @@ A paper receipt at the store can be written as one table, with one row per produ
 
 | sale_id | sale_date | customer_name | customer_phone | customer_type | product_name | category_name | quantity | unit_price | payments |
 |---:|---|---|---|---|---|---|---:|---:|---|
-| 2 | 2026-06-10 | Bello Traders | 08030000002 | wholesale | Rice 50kg | Grains | 2 | 85000 | 100000 transfer |
-| 2 | 2026-06-10 | Bello Traders | 08030000002 | wholesale | Beans 25kg | Grains | 1 | 42000 | 100000 transfer |
+| 2 | 2026-10-02 | Bello Traders | 08030000002 | wholesale | Rice 50kg | Grains | 2 | 85000 | 100000 transfer |
+| 2 | 2026-10-02 | Bello Traders | 08030000002 | wholesale | Beans 25kg | Grains | 1 | 42000 | 100000 transfer |
 
 This breaks the rules of relational design: the `payments` cell can hold several values (for example "34500 cash; 20000 transfer"), and the customer, product and category details are repeated on every row.
 
@@ -55,7 +55,7 @@ Functional dependencies of the final design:
 | CATEGORIES | category_id -> category_name; category_name -> category_id |
 | PRODUCTS | product_id -> product_name, category_id, current_price, quantity_in_stock, is_active, created_at |
 | SALES | sale_id -> customer_id, sale_date, sale_status, cancelled_at, notes |
-| SALE_ITEMS | sale_item_id -> sale_id, product_id, quantity, unit_price; (sale_id, product_id) -> sale_item_id |
+| SALE_ITEMS | sale_item_id -> sale_id, product_id, quantity, unit_price, line_total (generated from quantity and unit_price); (sale_id, product_id) -> sale_item_id |
 | PAYMENTS | payment_id -> sale_id, amount, payment_method, payment_date, reference |
 | INVENTORY_MOVEMENTS | movement_id -> product_id, sale_item_id, movement_type, quantity_change, movement_date, remarks |
 
@@ -71,8 +71,8 @@ The main 3NF decisions were `CUSTOMERS` and `CATEGORIES`.
 | category_id | category_name |
 |---:|---|
 | 1 | Grains |
-| 2 | Cooking Oil |
-| 3 | Groceries |
+| 2 | Cooking Essentials |
+| 3 | Beverages |
 
 **PRODUCTS**
 
@@ -93,7 +93,7 @@ Payments are separated from `SALES` so one sale can have several payments.
 | Sale total and outstanding balance | Sum of line totals, minus payments | **Not stored.** Calculated by the view `v_sale_balances`, so it can never go stale. |
 | `products.quantity_in_stock` | Equals the sum of `inventory_movements.quantity_change` | **Stored on purpose** (derived data). |
 
-Strictly, `quantity_in_stock` breaks the "store each fact once" idea because it can drift away from the movement rows. It is kept because reading a product's stock is the most common operation at the till and should not need a scan of the history, and because a single row can be locked for Portfolio 3. The risk is controlled by changing the counter and its movement row in the same transaction, and `v_stock_reconciliation` shows any difference (it must be 0 for every product). The reasoning is in `03_design_notes.md`, section 3.
+Strictly, `quantity_in_stock` breaks the "store each fact once" idea because it can drift away from the movement rows. It is kept because reading a product's stock is the most common operation at the till and should not need a scan of the history, and because a single row can be locked for Portfolio 3. The risk is controlled by changing the counter and its movement row in the same transaction, and `v_stock_reconciliation` shows any difference (it must be 0 for every product). The reasoning is in [Shuaib_Ganiyat_301910988_Database_Design.md](Shuaib_Ganiyat_301910988_Database_Design.md), section 3.
 
 ## 6. Benefits of Normalisation
 

@@ -56,4 +56,9 @@ The tests change stock. To return to the clean data set, reset the database and 
 | Lost update (08) | rows in "Concurrency demo%" sales; final stock | Both sessions read stock 1. Two sales were created (Concurrency demo A and B, 1 unit each) but final stock was 0, so 2 units were sold from a stock of 1. | `evidence/Shuaib_Ganiyat_301910988_08_lost_update_session.png` |
 | FOR UPDATE (09) | what session B did; rows; final stock | Session B's `SELECT ... FOR UPDATE` waited until A committed, then returned 0 and B rolled back. One sale (Concurrency demo A); final stock 0. | `evidence/Shuaib_Ganiyat_301910988_09_for_update_session.png` |
 
+## Notes on the evidence
+- **05 (REPEATABLE READ):** Query 1 shows 23, not 24. After the 04 demo stock was 24, and the right-hand pane of the 05 screenshot shows session B ran its update twice, so one extra decrement happened outside the 05 steps (most likely a B run before A's first query). The three values in 05 (23, 23, 22) and the 22 at the start of 06 are consistent with each other, and the point of the demo (a stable snapshot) is unaffected.
+- **08 (lost update):** session B's connection dropped once (`SSL connection has been closed unexpectedly ... Attempting reset: Succeeded`), so B1 was run again after the reconnect. Both sessions still read stock 1 before either committed, so the result is valid.
+- **09 (FOR UPDATE):** the screenshot shows session B's `SELECT ... FOR UPDATE` returning 0 and the rollback, but it was taken after the wait, so it does not show B hanging.
+- **03 (failed sale):** the `psql:sql/03_failed_sale_rollback.sql:14` text in the screenshot comes from the earlier, unprefixed file name; the statement and the error message are the same as in the current script.
 

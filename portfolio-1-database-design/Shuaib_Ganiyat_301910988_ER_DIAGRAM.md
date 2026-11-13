@@ -6,13 +6,14 @@ The Adetwin Stores database has seven entities: `CUSTOMERS`, `CATEGORIES`,
 Reading guide:
 - A walk-in sale has no customer, so `customers` to `sales` is zero-or-many on the sales side and **optional** on the customer side (nullable FK).
 - `sale_items` depends on `sales` for its identity (a line has no meaning without its sale).
+- A completed sale is expected to have at least one line, but the database does not enforce this, so `sales` to `sale_items` is drawn as zero-or-many. The application adds the lines in the same transaction as the sale (Portfolio 3).
 - `inventory_movements` to `sale_items` is optional: opening, restock and adjustment movements have no sale line. A sale line has one `sale` movement and possibly a later `return` movement, so it is zero-or-many in the model.
 
 ```mermaid
 erDiagram
     CUSTOMERS |o--o{ SALES : "places (walk-in = no customer)"
     CATEGORIES ||--o{ PRODUCTS : classifies
-    SALES ||--|{ SALE_ITEMS : contains
+    SALES ||--o{ SALE_ITEMS : contains
     PRODUCTS ||--o{ SALE_ITEMS : "sold as"
     SALES ||--o{ PAYMENTS : receives
     PRODUCTS ||--o{ INVENTORY_MOVEMENTS : "stock history"

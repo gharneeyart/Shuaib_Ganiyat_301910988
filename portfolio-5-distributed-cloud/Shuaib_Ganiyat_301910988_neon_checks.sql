@@ -15,7 +15,7 @@ SELECT ssl, version AS tls_version, cipher FROM pg_stat_ssl WHERE pid = pg_backe
 --    and INSERT/UPDATE statements fail with "cannot execute ... in a read-only transaction".
 SELECT pg_is_in_recovery() AS is_replica;
 
--- 4. How big is the data? (record it next to your plan limits)
+-- 4. Database size.
 SELECT pg_size_pretty(pg_database_size(current_database())) AS database_size;
 
 -- 5. Cold-start experiment (availability / latency).
@@ -26,4 +26,4 @@ SELECT pg_size_pretty(pg_database_size(current_database())) AS database_size;
 --       A later start time and a slower first query show the compute was suspended and restarted.
 SELECT pg_postmaster_start_time() AS compute_started_at;
 SELECT now() - pg_postmaster_start_time() AS compute_uptime;
-SELECT count(*) AS products FROM products;   -- a simple query to time
+SELECT count(*) AS products FROM products;

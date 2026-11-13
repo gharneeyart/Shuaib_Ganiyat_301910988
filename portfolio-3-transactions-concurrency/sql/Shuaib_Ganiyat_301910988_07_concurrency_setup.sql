@@ -9,10 +9,10 @@ DECLARE led INTEGER;
 BEGIN
     SELECT COALESCE(SUM(quantity_change), 0) INTO led FROM inventory_movements WHERE product_id = 6;
     UPDATE products SET quantity_in_stock = 1 WHERE product_id = 6;
-    IF led <> 1 THEN      -- put the ledger in step with the counter (the demos skip ledger rows)
+    IF led <> 1 THEN  -- put the ledger in step with the counter (the demos skip ledger rows)
         INSERT INTO inventory_movements (product_id, movement_type, quantity_change, remarks)
         VALUES (6, 'adjustment', 1 - led, 'Concurrency demo setup');
     END IF;
 END $$;
 
-SELECT product_id, product_name, quantity_in_stock FROM products WHERE product_id = 6;   -- must show 1
+SELECT product_id, product_name, quantity_in_stock FROM products WHERE product_id = 6;  -- must show 1

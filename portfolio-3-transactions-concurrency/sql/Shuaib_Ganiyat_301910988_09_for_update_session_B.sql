@@ -1,5 +1,5 @@
 -- DEMO 2: THE FIX (SELECT ... FOR UPDATE). SESSION B (connection 2).
--- Steps: A1, B1 (B waits), A2, B2 (see 09_for_update_session_A.sql).
+-- Steps: A1, B1 (B waits), A2, B2 (see Shuaib_Ganiyat_301910988_09_for_update_session_A.sql).
 
 -- B1 (run after A1): the SELECT ... FOR UPDATE waits until A commits or rolls back.
 BEGIN;
@@ -12,5 +12,5 @@ ROLLBACK;
 
 -- CHECK: exactly one sale, stock 0.
 SELECT s.notes, si.quantity FROM sales s JOIN sale_items si USING (sale_id)
-WHERE s.notes LIKE 'Concurrency demo%';                                  -- 1 row (A only)
-SELECT quantity_in_stock FROM products WHERE product_id = 6;             -- 0
+WHERE s.notes LIKE 'Concurrency demo%';  -- 1 row (A only)
+SELECT quantity_in_stock FROM products WHERE product_id = 6;  -- 0

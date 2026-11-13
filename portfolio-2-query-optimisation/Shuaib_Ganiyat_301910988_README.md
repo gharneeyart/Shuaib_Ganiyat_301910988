@@ -34,12 +34,14 @@ Tip: `sql/Shuaib_Ganiyat_301910988_execution_plans.sql` contains the `CREATE IND
 |---|---|---|
 | Q1 | Which customers owe the most? | CTEs, LEFT JOIN, GROUP BY, HAVING |
 | Q2 | Which active products need restocking (<= 15)? | filter |
-| Q3 | Daily revenue for June | date range, join, aggregate |
+| Q3 | Daily revenue for June | date range, join, aggregate (returns 31 rows, see the note below) |
 | Q4 | Top 10 customers by purchases | 3-table join, aggregate |
 | Q5 | Best 3 products per category | window function (`ROW_NUMBER`) |
 | Q6 | Customers who never bought | `NOT EXISTS` anti-join |
 | Q7 | Last 20 stock movements of a product | equality + ORDER BY + LIMIT |
 | Q8 | Sales lines of one product | selective filter on an FK column |
+
+**Q3 time zone note.** The date range is written in Lagos time (`+01`), but the Neon session time zone is UTC, so `date_trunc('day', ...)` puts sales made between 00:00 and 01:00 on 1 June into the row labelled `2026-05-31` (23 sales). That is why Q3 returns 31 rows instead of 30. The query was left unchanged so it matches the saved plans in the Exp5 screenshots.
 
 ## Results
 Environment: PostgreSQL 18 (the plan output format with `Index Searches` is PostgreSQL 18), hosted on Neon, rows in `sales` 200,002, `sale_items` 499,401, `inventory_movements` about 516,000, `products` 2,006, `customers` 20,004.

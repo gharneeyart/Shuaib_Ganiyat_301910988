@@ -13,6 +13,7 @@ Database: PostgreSQL (hosted on Neon).
 | [Shuaib_Ganiyat_301910988_ConstraintsTest.md](Shuaib_Ganiyat_301910988_ConstraintsTest.md) | Written record of the constraint tests |
 | [Shuaib_Ganiyat_301910988_schema.sql](Shuaib_Ganiyat_301910988_schema.sql) | DDL: 7 tables, 1 partial unique index, 2 views |
 | [Shuaib_Ganiyat_301910988_Seed.sql](Shuaib_Ganiyat_301910988_Seed.sql) | Small, hand-checkable data set (4 categories, 4 customers, 6 products, 2 sales, 4 sale lines, 2 payments, 10 stock movements) |
+| [Shuaib_Ganiyat_301910988_ConstraintTests.sql](Shuaib_Ganiyat_301910988_ConstraintTests.sql) | Runnable constraint tests: 30 statements that must be rejected, 6 transaction blocks that must succeed (then roll back), 2 view checks |
 | [evidence/](evidence/) | Screenshots of the constraint test output (`Shuaib_Ganiyat_301910988_Constraint_01.png` to `Shuaib_Ganiyat_301910988_Constraint_07.png`) |
 
 ## How to run
@@ -47,23 +48,24 @@ psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 then re-run the schema and seed files. Do this only on a database that holds nothing else you need.
 
 ### Running the test file
-The test file starts with `\set ON_ERROR_STOP off`, so `psql` keeps going after each failed statement. Part A statements fail, so they save nothing. Part B runs in a transaction that ends with `ROLLBACK`. Part C only reads. The test file can be re-run any number of times. Run it **right after the seed**: it uses fixed IDs (for example category 1, sale 1), and failed inserts still use up identity values.
+`Shuaib_Ganiyat_301910988_ConstraintTests.sql` starts with `\set ON_ERROR_STOP off`, so `psql` keeps going after each failed statement. Failed statements save nothing. Each positive block runs inside `BEGIN ... ROLLBACK`, and the view checks only read. The file can be re-run any number of times. Run it **right after the seed**: it uses fixed ids (for example category 1, sale 1), and failed inserts still use up identity values. The same statements, with the screenshots, are in [Shuaib_Ganiyat_301910988_ConstraintsTest.md](Shuaib_Ganiyat_301910988_ConstraintsTest.md).
 
 ## What was tested and how
-`Shuaib_Ganiyat_301910988_ConstraintTests.sql` is a plain list of SQL statements, each with a comment saying which rule it tests. Part A (tests 1-29) must each print an ERROR that names the broken rule. Part B (30-34) must be accepted. Part C (35-36) checks the views.
+The test file has seven sections. In each of sections 1 to 6, the **negative tests** must each print an ERROR that names the broken rule, and the **positive tests** (a `BEGIN ... ROLLBACK` block) must run without error. Section 7 checks the views.
 
-| Tests | What they prove |
-|---|---|
-| 1–3 | customer type CHECK, UNIQUE phone, NOT NULL name |
-| 4–8 | unique category, price/stock CHECKs, product FK, category delete blocked |
-| 9–14 | sale status CHECK, `ck_cancel_consistent`, customer FK, delete of a sale/customer blocked |
-| 15–19 | quantity CHECK, `uq_sale_product`, generated `line_total` not writable, product FK, sold product cannot be deleted |
-| 20–22 | payment amount/method CHECKs, sale FK |
-| 23–29 | `ck_movement_sign`, `ck_movement_link`, `uq_one_sale_movement_per_item`, movement type CHECK |
-| 30–34 | must succeed: several NULL phones, walk-in sale, second payment, return after sale, restock |
-| 35–36 | derived views agree with the seed data (no stock difference; sale 1 fully paid) |
+| Section | Negative tests (must fail) | Positive tests (must succeed) |
+|---|---|---|
+| 1 Customers | customer type CHECK, UNIQUE phone, NOT NULL name (3) | customer with phone; several customers with no phone |
+| 2 Categories, products | unique category, negative price, negative stock, category FK, category delete blocked (5) | zero price and stock; new category |
+| 3 Sales | status CHECK, `ck_cancel_consistent` (twice), customer FK, sale delete blocked, customer delete blocked (6) | walk-in sale; sale for an existing customer |
+| 4 Sale items | quantity CHECK, negative unit price, `uq_sale_product`, generated `line_total` not writable, product FK, sold product delete blocked (6) | a valid line with `line_total` calculated by the database |
+| 5 Payments | amount CHECK, method CHECK, sale FK (3) | smallest amount; part payments by transfer and card |
+| 6 Inventory movements | `ck_movement_sign` (twice), quantity zero, `ck_movement_link` (twice), `uq_one_sale_movement_per_item`, unknown type (7) | return after sale; restock |
+| 7 Views | | `v_stock_reconciliation` shows no differences; sale 1 is fully paid |
 
-Expected result: Part A prints an ERROR for every statement, Part B prints no errors, test 35 returns no rows, and test 36 shows `outstanding = 0` for sale 1. Screenshots of the output are saved in [evidence/](evidence/).
+That is **30 negative tests**, **6 positive blocks** and **2 view checks**.
+
+Expected result: every negative statement prints an ERROR, the positive blocks print `INSERT 0 n` and `ROLLBACK` with no errors, the first view query returns 0 rows, and the second shows `outstanding = 0` for sale 1. Screenshots `Constraint_01` to `Constraint_07` (one per section) are in [evidence/](evidence/).
 
 ## Design decisions (summary; reasoning in [Shuaib_Ganiyat_301910988_Database_Design.md](Shuaib_Ganiyat_301910988_Database_Design.md) and [Shuaib_Ganiyat_301910988_Normalisation.md](Shuaib_Ganiyat_301910988_Normalisation.md))
 1. Surrogate identity keys everywhere; natural keys kept as UNIQUE.

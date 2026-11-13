@@ -1,7 +1,7 @@
 // Portfolio 4: tests that MongoDB rejects bad documents (the counterpart of
-// 04_constraint_tests.sql in Portfolio 1).
-// Run:  mongosh "YOUR_CONNECTION_STRING" --file 04_validation_tests.js
-// Run 01_setup_and_seed.js first. Prints PASS/FAIL per test; leaves data unchanged.
+// Shuaib_Ganiyat_301910988_ConstraintTests.sql in Portfolio 1).
+// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_04_validation_tests.js
+// Run Shuaib_Ganiyat_301910988_01_setup_and_seed.js first. Prints PASS/FAIL per test; leaves data unchanged.
 
 db = db.getSiblingDB('adetwin_stores_nosql');
 

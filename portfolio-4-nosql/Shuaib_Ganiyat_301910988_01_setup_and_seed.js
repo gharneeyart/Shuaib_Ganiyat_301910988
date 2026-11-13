@@ -1,7 +1,7 @@
 // Portfolio 4: MongoDB setup and seed data.
-// Run:  mongosh "YOUR_CONNECTION_STRING" --file 01_setup_and_seed.js
+// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_01_setup_and_seed.js
 // The data mirrors the PostgreSQL seed (same 6 products, same 2 sales, same
-// customers, same current stock) so both portfolios describe the same business.
+// customers (as snapshots inside each sale), same current stock) so both portfolios describe the same business.
 // WARNING: drops and recreates the three collections in database adetwin_stores_nosql.
 
 db = db.getSiblingDB('adetwin_stores_nosql');
@@ -10,7 +10,7 @@ db.products.drop();
 db.sales.drop();
 db.inventoryEvents.drop();
 
-// --- Schema validation (the MongoDB counterpart of CHECK / NOT NULL) ----------
+// --- Schema validation (the MongoDB counterpart of CHECK / NOT NULL)
 db.createCollection('products', {
   validator: { $jsonSchema: {
     bsonType: 'object',
@@ -53,7 +53,7 @@ db.createCollection('sales', {
   } }
 });
 
-// --- Products: the same six as PostgreSQL, with genuinely different attributes -
+// --- Products: the same six as PostgreSQL, with genuinely different attributes
 db.products.insertMany([
   { productId: 1, productCode: 'GR-001', name: 'Rice 50kg', category: 'Grains', price: 85000, stock: 23, active: true,
     attributes: { packageSize: '50kg', grainType: 'Long grain parboiled', origin: 'Nigeria' } },
@@ -72,7 +72,7 @@ db.products.insertMany([
 db.products.createIndex({ productCode: 1 }, { unique: true });
 db.products.createIndex({ category: 1, stock: 1 });
 
-// --- Sales: one document per sale, with customer snapshot, items and payments --
+// --- Sales: one document per sale, with customer snapshot, items and payments
 db.sales.insertMany([
   { saleCode: 'ADS-1001', saleDate: ISODate('2026-10-01T09:00:00Z'),
     customer: { customerId: 1, name: 'Amina Yusuf', type: 'retail' },
@@ -98,7 +98,7 @@ db.sales.createIndex({ saleCode: 1 }, { unique: true });
 db.sales.createIndex({ 'customer.customerId': 1 });
 db.sales.createIndex({ saleDate: 1 });
 
-// --- Stock ledger as separate documents (opening stock + the two sales) --------
+// --- Stock ledger as separate documents (opening stock + the two sales)
 // SUM(quantityChange) per product equals products.stock.
 const opening = ISODate('2025-12-31T07:00:00Z');
 db.inventoryEvents.insertMany([
@@ -115,6 +115,6 @@ db.inventoryEvents.insertMany([
 ]);
 
 print('Adetwin MongoDB sample data loaded.');
-print('Products: ' + db.products.countDocuments());          // expected 6
-print('Sales: ' + db.sales.countDocuments());                // expected 2
-print('Inventory events: ' + db.inventoryEvents.countDocuments());  // expected 10
+print('Products: ' + db.products.countDocuments());
+print('Sales: ' + db.sales.countDocuments());
+print('Inventory events: ' + db.inventoryEvents.countDocuments());

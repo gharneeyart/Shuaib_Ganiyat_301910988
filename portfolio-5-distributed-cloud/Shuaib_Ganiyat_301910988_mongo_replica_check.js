@@ -1,5 +1,5 @@
 // Portfolio 5: replication and consistency checks on MongoDB.
-// Run:  mongosh "YOUR_CONNECTION_STRING" --file 02_mongo_replica_check.js
+// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_mongo_replica_check.js
 // A MongoDB Atlas cluster (including the free M0 tier) is a replica set of 3 nodes.
 // This script shows that, then compares two write guarantees. It creates one
 // scratch collection (wc_demo) and drops it at the end.

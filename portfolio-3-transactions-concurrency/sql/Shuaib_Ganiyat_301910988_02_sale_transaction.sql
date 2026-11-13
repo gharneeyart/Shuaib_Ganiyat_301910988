@@ -10,8 +10,8 @@ DECLARE
     v_sale_id      BIGINT;
     v_sale_item_id BIGINT;
 BEGIN
-    -- FOR UPDATE locks this product row until the transaction ends, so two
-    -- sales of the same product cannot check and change stock at the same time.
+  -- FOR UPDATE locks this product row until the transaction ends, so two
+  -- sales of the same product cannot check and change stock at the same time.
     SELECT current_price, quantity_in_stock
       INTO v_price, v_stock
     FROM products
@@ -49,8 +49,8 @@ END $$;
 
 -- Successful sales. Run once each (every run creates another test sale).
 BEGIN;
-SELECT record_sale(1, 1, 1) AS sale_id;     -- 1 unit of product 1
-SELECT record_sale(2, 2, 3) AS sale_id;     -- 3 units of product 2: payment must be 3 x price
+SELECT record_sale(1, 1, 1) AS sale_id;
+SELECT record_sale(2, 2, 3) AS sale_id;  -- 3 units of product 2: payment must be 3 x price
 COMMIT;
 
 -- Verify: totals match payments, stock and ledger agree.

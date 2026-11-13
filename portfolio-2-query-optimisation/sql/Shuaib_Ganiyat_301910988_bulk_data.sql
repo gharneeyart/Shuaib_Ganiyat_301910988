@@ -7,11 +7,10 @@ SELECT setseed(0.42);
 
 BEGIN;
 
--- 16 more categories (20 total)
 INSERT INTO categories (category_name)
 SELECT 'Category ' || lpad(g::text, 2, '0') FROM generate_series(1, 16) g;
 
--- customers: 20% wholesale, unique phone numbers 
+-- customers: 20% wholesale, unique phone numbers
 INSERT INTO customers (customer_name, phone, customer_type)
 SELECT 'Customer ' || g,
        '09' || lpad(g::text, 9, '0'),
@@ -66,7 +65,7 @@ CROSS JOIN LATERAL generate_series(1, pl.n_lines) k
 JOIN products pr ON pr.product_id = f.p0 + ((pl.base + (k - 1) * 37) % :products_n);
 
 -- payments: 70% paid in full, 20% part-paid on credit (30-90%), 10% unpaid;
--- cancelled sales take no payment 
+-- cancelled sales take no payment
 INSERT INTO payments (sale_id, amount, payment_method, payment_date)
 SELECT pl.sale_id,
        round((t.total * CASE WHEN pl.pay_r < 0.70 THEN 1
@@ -115,7 +114,6 @@ COMMIT;
 
 ANALYZE;   -- refresh planner statistics: essential before any EXPLAIN
 
--- sanity checks 
 SELECT 'customers' AS tbl, count(*) FROM customers
 UNION ALL SELECT 'products', count(*) FROM products
 UNION ALL SELECT 'sales', count(*) FROM sales

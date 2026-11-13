@@ -1,12 +1,12 @@
 // Portfolio 4: CRUD and aggregation.
-// Run:  mongosh "YOUR_CONNECTION_STRING" --file 02_crud_and_aggregation.js
+// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_02_crud_and_aggregation.js
 // (or paste one section at a time into an interactive mongosh session).
-// Run 01_setup_and_seed.js first; re-run it to reset the data after this script.
+// Run Shuaib_Ganiyat_301910988_01_setup_and_seed.js first; re-run it to reset the data after this script.
 
 db = db.getSiblingDB('adetwin_stores_nosql');
 const show = (title, value) => { print('\n=== ' + title); printjson(value); };
 
-// ------------------------------------------------------------------ READ
+// Read
 show('R1 Grain products',
   db.products.find({ category: 'Grains' }, { _id: 0, productCode: 1, name: 1, price: 1 }).toArray());
 
@@ -21,7 +21,7 @@ show('R3 Products with 12 or more bottles per pack (nested attribute)',
 show('R4 Sales that contain GR-001 (query inside the items array)',
   db.sales.find({ 'items.productCode': 'GR-001' }, { _id: 0, saleCode: 1, total: 1, paymentStatus: 1 }).toArray());
 
-// ---------------------------------------------------------------- UPDATE
+// Update
 show('U1 Change price of Vegetable Oil 5L to 13000',
   db.products.updateOne({ productCode: 'CE-001' }, { $set: { price: 13000, updatedAt: new Date() } }));
 // Note: the old sale ADS-1001 still shows unitPrice 12500. Sale documents keep
@@ -45,7 +45,7 @@ db.inventoryEvents.insertOne({ productCode: 'BV-001', eventType: 'sale', quantit
 show('U3b Try to sell 1000 (not enough stock: matchedCount 0, nothing changes)',
   db.products.updateOne({ productCode: 'BV-001', stock: { $gte: 1000 } }, { $inc: { stock: -1000 } }));
 
-// ---------------------------------------------------------- INSERT / DELETE
+// Insert / Delete
 show('I1 Insert a new product (attributes differ from every other product)',
   db.products.insertOne({ productCode: 'PA-001', name: 'Spaghetti Carton', category: 'Pasta', price: 11000,
     stock: 40, active: true, attributes: { packetsPerCarton: 20, packetGrams: 500, cookingMinutes: 10 } }));
@@ -53,7 +53,7 @@ show('D1 Delete the demonstration product',
   db.products.deleteOne({ productCode: 'PA-001' }));
 show('D2 It is gone (expect null)', db.products.findOne({ productCode: 'PA-001' }));
 
-// ------------------------------------------------------------ AGGREGATION
+// Aggregation
 show('A1 Sales value by payment status',
   db.sales.aggregate([
     { $group: { _id: '$paymentStatus', salesValue: { $sum: '$total' }, saleCount: { $sum: 1 } } },

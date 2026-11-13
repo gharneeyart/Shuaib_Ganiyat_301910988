@@ -61,11 +61,11 @@ Load the connection string first (`source .env`; the URL must be in double quote
 
 ```bash
 psql "$DATABASE_URL" -f Shuaib_Ganiyat_301910988_schema.sql
-psql "$DATABASE_URL" -f Shuaib_Ganiyat_301910988_seed.sql
+psql "$DATABASE_URL" -f Shuaib_Ganiyat_301910988_Seed.sql
 psql "$DATABASE_URL" -c "SELECT * FROM v_stock_reconciliation;" -c "SELECT * FROM v_sale_balances;"
 ```
 The schema file has no `DROP` statements, so to rebuild on a database that already has the tables, first run `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` (this erases everything in that database).
 
 With the seed data, `v_stock_reconciliation` shows `difference = 0` for all six products. In `v_sale_balances`, sale 1 is fully paid (34,500) and sale 2 has 112,000 outstanding (total 212,000, paid 100,000).
 
-The full test run is `Shuaib_Ganiyat_301910988_ConstraintTests.sql` (36 tests; see [Shuaib_Ganiyat_301910988_README.md](Shuaib_Ganiyat_301910988_README.md)). Three examples that must fail: `DELETE FROM sales WHERE sale_id = 1;` (RESTRICT), a `sale` movement with a positive quantity (`ck_movement_sign`), and a second `sale` movement for the same sale item (`uq_one_sale_movement_per_item`).
+The full test run is `Shuaib_Ganiyat_301910988_ConstraintTests.sql` (30 negative tests, 6 positive blocks and 2 view checks; see [Shuaib_Ganiyat_301910988_README.md](Shuaib_Ganiyat_301910988_README.md)). Three examples that must fail: `DELETE FROM sales WHERE sale_id = 1;` (RESTRICT), a `sale` movement with a positive quantity (`ck_movement_sign`), and a second `sale` movement for the same sale item (`uq_one_sale_movement_per_item`).

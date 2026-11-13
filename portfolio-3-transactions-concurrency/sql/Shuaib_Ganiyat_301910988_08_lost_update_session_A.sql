@@ -1,12 +1,10 @@
 -- DEMO 1: THE PROBLEM (no locking). SESSION A (connection 1).
--- Run 07_concurrency_setup.sql first. Order of steps across the two sessions:
+-- Run Shuaib_Ganiyat_301910988_07_concurrency_setup.sql first. Order of steps across the two sessions:
 --   A1, B1, A2, B2
--- The application reads the stock, decides in code, then writes the NEW VALUE
--- it calculated. That is a read-modify-write race.
 
 -- A1
 BEGIN;
-SELECT quantity_in_stock FROM products WHERE product_id = 6;      -- sees 1: "enough stock"
+SELECT quantity_in_stock FROM products WHERE product_id = 6;  -- sees 1: "enough stock"
 
 -- >>> Now run B1 in Session B, then come back for A2. <<<
 

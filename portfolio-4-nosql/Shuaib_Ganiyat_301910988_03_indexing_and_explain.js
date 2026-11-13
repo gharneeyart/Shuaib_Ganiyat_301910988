@@ -1,6 +1,6 @@
 // Portfolio 4: index evidence with explain(), the MongoDB counterpart of Portfolio 2.
-// Run:  mongosh "YOUR_CONNECTION_STRING" --file 03_indexing_and_explain.js
-// Run 01_setup_and_seed.js first. The script adds 20,000 SYNTHETIC inventory
+// Run:  mongosh "$MONGODB_URI" --file Shuaib_Ganiyat_301910988_03_indexing_and_explain.js
+// Run Shuaib_Ganiyat_301910988_01_setup_and_seed.js first. The script adds 20,000 SYNTHETIC inventory
 // events so the difference is measurable, then deletes them again at the end.
 
 db = db.getSiblingDB('adetwin_stores_nosql');
@@ -34,7 +34,6 @@ run('BEFORE the index');
 // 3. Compound index: equality field first, sort field second (same rule as PostgreSQL).
 db.inventoryEvents.createIndex({ productCode: 1, eventDate: -1 });
 
-// 4. AFTER
 print('\nIndexes after:'); printjson(db.inventoryEvents.getIndexes().map(i => i.name));
 run('AFTER the index');
 

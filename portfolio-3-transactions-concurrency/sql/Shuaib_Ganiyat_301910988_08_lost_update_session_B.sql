@@ -1,9 +1,9 @@
 -- DEMO 1: THE PROBLEM (no locking). SESSION B (connection 2).
--- Steps: A1, B1, A2, B2 (see 08_lost_update_session_A.sql).
+-- Steps: A1, B1, A2, B2 (see Shuaib_Ganiyat_301910988_08_lost_update_session_A.sql).
 
 -- B1 (run after A1, before A2)
 BEGIN;
-SELECT quantity_in_stock FROM products WHERE product_id = 6;      -- ALSO sees 1: A has not committed yet
+SELECT quantity_in_stock FROM products WHERE product_id = 6;  -- ALSO sees 1: A has not committed yet
 
 -- >>> Now go back and run A2 (including COMMIT) in Session A, then run B2. <<<
 
@@ -18,5 +18,5 @@ COMMIT;
 
 -- CHECK THE DAMAGE (either session): two sales of a product that had ONE unit.
 SELECT s.notes, si.quantity FROM sales s JOIN sale_items si USING (sale_id)
-WHERE s.notes LIKE 'Concurrency demo%' ORDER BY s.notes;                  -- 2 rows, 1 unit each
-SELECT quantity_in_stock FROM products WHERE product_id = 6;             -- 0, not -1: the second write overwrote the first
+WHERE s.notes LIKE 'Concurrency demo%' ORDER BY s.notes;  -- 2 rows, 1 unit each
+SELECT quantity_in_stock FROM products WHERE product_id = 6;  -- 0, not -1: the second write overwrote the first

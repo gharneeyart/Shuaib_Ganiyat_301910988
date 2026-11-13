@@ -3,7 +3,8 @@
 ## Case Study
 
 Adetwin Stores is a retail and wholesale business that sells packaged
-foodstuff such as noodles, spaghetti, oils, and other grocery products. The
+foodstuff and household goods such as rice, beans, cooking oil, tomato paste,
+beverages and laundry soap. The
 store needs a database system to manage its products, stock, sales,
 customers, and payments.
 
@@ -56,9 +57,11 @@ document model for products and receipts, and a distributed/cloud
 deployment discussion (a multi-branch store is the growth scenario used
 in Portfolio 5).
 
-Out of scope, stated deliberately: delivery tracking, product attribute
-variants, supplier and purchase orders, and user accounts. They are not
-needed by the portfolio tasks.
+Out of scope, stated deliberately: delivery tracking, supplier and
+purchase orders, user accounts, and a relational design for variable
+product attributes (the PostgreSQL model has one price and no variant
+tables; variable attributes such as bottles per pack appear only in the
+MongoDB model of Portfolio 4). They are not needed by the portfolio tasks.
 
 ## Main Business Rules
 
